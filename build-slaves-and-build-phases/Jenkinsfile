@@ -1,0 +1,69 @@
+pipeline {
+    agent {
+        label 'build-slave'
+    }
+
+    stages {
+        stage('Source Code Checkout') {
+            steps {
+                echo 'Phase 1: Starting source code checkout'
+                checkout scm
+                echo 'Source code checkout completed'
+            }
+        }
+
+        stage('Build Phase') {
+            steps {
+                echo 'Phase 2: Building the application'
+                sh '''
+                    echo "Build Slaves and Build Phases Project" > app.txt
+                    echo "Application build completed"
+                '''
+            }
+        }
+
+        stage('Testing Phase') {
+            steps {
+                echo 'Phase 3: Testing the application'
+                sh '''
+                    test -s app.txt
+                    echo "Test passed: Application file exists and is not empty"
+                '''
+            }
+        }
+
+        stage('Packaging Phase') {
+            steps {
+                echo 'Phase 4: Packaging the application'
+                sh '''
+                    tar -czf application.tar.gz app.txt
+                    echo "Application packaged successfully"
+                '''
+            }
+            post {
+                success {
+                    archiveArtifacts artifacts: 'application.tar.gz', fingerprint: true
+                }
+            }
+        }
+
+        stage('Deployment Phase') {
+            steps {
+                echo 'Phase 5: Deployment demonstration'
+                echo 'Deployment phase completed (demonstration only; no real deployment configured)'
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Pipeline completed successfully!'
+        }
+        failure {
+            echo 'Pipeline failed. Check the console logs.'
+        }
+        always {
+            echo 'Build execution finished.'
+        }
+    }
+}
